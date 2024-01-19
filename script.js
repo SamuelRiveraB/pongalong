@@ -29,6 +29,24 @@ let speedX;
 let trajectoryX;
 let computerSpeed;
 
+// Random numbers
+const rnd = []
+rndCurrent = 0
+rndNext = 1
+
+function rndArray() {
+  for (i = 0; i < 100; i++) {
+    rnd.push(Math.floor(Math.random()*10))
+  }
+  console.log(rnd)
+}
+
+// Phone number array
+
+phone = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+phoneAux = 0
+phoneNumber = ''
+
 // Change Mobile Settings
 if (isMobile.matches) {
   speedY = -2;
@@ -41,9 +59,7 @@ if (isMobile.matches) {
 }
 
 // Score
-let playerScore = 0;
-let computerScore = 0;
-const winningScore = 7;
+const phoneLength = phone.length;
 let isGameOver = true;
 let isNewGame = true;
 
@@ -78,8 +94,23 @@ function renderCanvas() {
 
   // Score
   context.font = '32px Courier New';
-  context.fillText(playerScore, 20, canvas.height / 2 + 50);
-  context.fillText(computerScore, 20, canvas.height / 2 - 30);
+  context.fillText(rnd[rndNext], 20, canvas.height / 2 + 50);
+  context.fillText(rnd[rndCurrent], 20, canvas.height / 2 - 30);
+  context.fillText('Next', 60, canvas.height / 2 + 50);
+  context.fillText('Current', 60, canvas.height / 2 - 30);
+  context.fillText('+', 20, canvas.height / 2 + 10);
+  context.fillText(phone[0], 40, canvas.height / 2 + 10);
+  context.fillText(phone[1], 60, canvas.height / 2 + 10);
+  context.fillText(phone[2], 100, canvas.height / 2 + 10);
+  context.fillText(phone[3], 140, canvas.height / 2 + 10);
+  context.fillText(phone[4], 180, canvas.height / 2 + 10);
+  context.fillText(phone[5], 220, canvas.height / 2 + 10);
+  context.fillText(phone[6], 260, canvas.height / 2 + 10);
+  context.fillText(phone[7], 300, canvas.height / 2 + 10);
+  context.fillText(phone[8], 340, canvas.height / 2 + 10);
+  context.fillText(phone[9], 380, canvas.height / 2 + 10);
+  context.fillText(phone[10], 420, canvas.height / 2 + 10);
+  context.fillText(phone[11], 460, canvas.height / 2 + 10);
 }
 
 // Create Canvas Element
@@ -128,16 +159,17 @@ function ballBoundaries() {
         // Max Speed
         if (speedY < -5) {
           speedY = -5;
-          computerSpeed = 6;
+          computerSpeed = -3;
         }
       }
       speedY = -speedY;
       trajectoryX = ballX - (paddleBottomX + paddleDiff);
       speedX = trajectoryX * 0.3;
     } else if (ballY > height) {
-      // Reset Ball, add to Computer Score
+      // Reset Ball, ignore current
       ballReset();
-      computerScore++;
+      rndNext ++
+      rndCurrent ++
     }
   }
   // Bounce off computer paddle (top)
@@ -153,9 +185,12 @@ function ballBoundaries() {
       }
       speedY = -speedY;
     } else if (ballY < 0) {
-      // Reset Ball, add to Player Score
+      // Reset Ball, add current
       ballReset();
-      playerScore++;
+      phone[phoneAux] = rnd[rndCurrent];
+      phoneAux ++
+      rndNext ++
+      rndCurrent ++
     }
   }
 }
@@ -171,7 +206,7 @@ function computerAI() {
   }
 }
 
-function showGameOverEl(winner) {
+function showGameOverEl() {
   // Hide Canvas
   canvas.hidden = true;
   // Container
@@ -179,11 +214,11 @@ function showGameOverEl(winner) {
   gameOverEl.classList.add('game-over-container');
   // Title
   const title = document.createElement('h1');
-  title.textContent = `${winner} Wins!`;
+  title.textContent = `Your number is {}!`;
   // Button
   const playAgainBtn = document.createElement('button');
   playAgainBtn.setAttribute('onclick', 'startGame()');
-  playAgainBtn.textContent = 'Play Again';
+  playAgainBtn.textContent = 'Type another number';
   // Append
   gameOverEl.append(title, playAgainBtn);
   body.appendChild(gameOverEl);
@@ -191,11 +226,9 @@ function showGameOverEl(winner) {
 
 // Check If One Player Has Winning Score, If They Do, End Game
 function gameOver() {
-  if (playerScore === winningScore || computerScore === winningScore) {
+  if (phoneAux === phoneLength) {
     isGameOver = true;
-    // Set Winner
-    const winner = playerScore === winningScore ? 'Player 1' : 'Computer';
-    showGameOverEl(winner);
+    showGameOverEl();
   }
 }
 
@@ -221,6 +254,13 @@ function startGame() {
   isNewGame = false;
   playerScore = 0;
   computerScore = 0;
+
+  rndCurrent = 0
+  rndNext = 1
+
+  phone = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  phoneAux = 0
+  rndArray()
   ballReset();
   createCanvas();
   animate();
