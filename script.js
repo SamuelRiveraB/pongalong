@@ -7,6 +7,7 @@ const height = 700;
 const screenWidth = window.innerWidth;
 const canvasPosition = screenWidth / 2 - width / 2;
 const isMobile = window.matchMedia('(max-width: 600px)');
+const mainMenu = document.createElement('div'); // A main menu
 const gameOverEl = document.createElement('div');
 
 // Paddle
@@ -35,15 +36,14 @@ rndCurrent = 0
 rndNext = 1
 
 function rndArray() {
-  for (i = 0; i < 100; i++) {
+  for (i = 0; i < 200; i++) {
     rnd.push(Math.floor(Math.random()*10))
   }
-  console.log(rnd)
 }
 
 // Phone number array
 
-phone = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+phone = ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_']
 phoneAux = 0
 phoneNumber = ''
 
@@ -59,8 +59,7 @@ if (isMobile.matches) {
 }
 
 // Score
-const phoneLength = phone.length;
-let isGameOver = true;
+let isGameOver = false;
 let isNewGame = true;
 
 // Render Everything on Canvas
@@ -159,7 +158,7 @@ function ballBoundaries() {
         // Max Speed
         if (speedY < -5) {
           speedY = -5;
-          computerSpeed = -3;
+          computerSpeed = 3;
         }
       }
       speedY = -speedY;
@@ -168,8 +167,8 @@ function ballBoundaries() {
     } else if (ballY > height) {
       // Reset Ball, ignore current
       ballReset();
-      rndNext ++
-      rndCurrent ++
+      rndNext ++  // Increment auxiliary to display the next random number
+      rndCurrent ++ // Increment auxiliary to display the current number
     }
   }
   // Bounce off computer paddle (top)
@@ -187,10 +186,10 @@ function ballBoundaries() {
     } else if (ballY < 0) {
       // Reset Ball, add current
       ballReset();
-      phone[phoneAux] = rnd[rndCurrent];
-      phoneAux ++
-      rndNext ++
-      rndCurrent ++
+      phone[phoneAux] = rnd[rndCurrent]; // Add number to phone array
+      phoneAux ++ // Increment auxiliary to go through the phone array
+      rndNext ++  // Increment auxiliary to display the next random number
+      rndCurrent ++ // Increment auxiliary to display the current number
     }
   }
 }
@@ -214,7 +213,8 @@ function showGameOverEl() {
   gameOverEl.classList.add('game-over-container');
   // Title
   const title = document.createElement('h1');
-  title.textContent = `Your number is {}!`;
+  title.style.width = '300px'
+  title.textContent = `Your number is \n+${phone[0]}${phone[1]} ${phone.splice(2).join('')}!`;
   // Button
   const playAgainBtn = document.createElement('button');
   playAgainBtn.setAttribute('onclick', 'startGame()');
@@ -224,9 +224,9 @@ function showGameOverEl() {
   body.appendChild(gameOverEl);
 }
 
-// Check If One Player Has Winning Score, If They Do, End Game
+// Check if the number is complete, End Game
 function gameOver() {
-  if (phoneAux === phoneLength) {
+  if (phoneAux === phone.length) {
     isGameOver = true;
     showGameOverEl();
   }
@@ -246,8 +246,11 @@ function animate() {
 
 // Start Game, Reset Everything
 function startGame() {
-  if (isGameOver && !isNewGame) {
+  if (isGameOver && !isNewGame) { // Changed this to accommodate the Main Menu
     body.removeChild(gameOverEl);
+    canvas.hidden = false;
+  } else {
+    body.removeChild(mainMenu);
     canvas.hidden = false;
   }
   isGameOver = false;
@@ -258,9 +261,10 @@ function startGame() {
   rndCurrent = 0
   rndNext = 1
 
-  phone = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  phone = ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_']
   phoneAux = 0
   rndArray()
+
   ballReset();
   createCanvas();
   animate();
@@ -279,5 +283,27 @@ function startGame() {
   });
 }
 
+function showMainMenu() {
+  // Hide Canvas
+  canvas.hidden = true;
+  // Container
+  mainMenu.textContent = '';
+  mainMenu.classList.add('game-over-container');
+  // Title
+  const title = document.createElement('h1');
+  title.style.width = '400px'
+  title.textContent = `BAD UIs - Pongalong`;
+  const text = document.createElement('p')
+  text.style.width = '90%'
+  text.textContent = "In this adventure you have to type your phone number's digits one by one. To do so you will see the current and the next number in a random array and you have to score to add the current number or let the computer score to ignore the current number. Good luck!"
+  // Button
+  const playBtn = document.createElement('button');
+  playBtn.setAttribute('onclick', 'startGame()');
+  playBtn.textContent = "Let's suffer";
+  // Append
+  mainMenu.append(title, text, playBtn);
+  body.appendChild(mainMenu);
+}
+
 // On Load
-startGame();
+showMainMenu();
